@@ -271,32 +271,85 @@ slide.addImage({
 
 **CRITICAL: Never stretch diagrams.** Always use `sizing: { type: "contain" }` to preserve the original aspect ratio.
 
-**Layout decision based on aspect ratio:**
-
-| Diagram ratio (w/h) | Layout | Strategy |
-|---------------------|--------|----------|
-| ≥ 0.7 | Split layout | Bullets left, diagram card right |
-| < 0.7 (tall) | Separate slide | Full-width text slide + dedicated diagram slide after |
+**All diagrams must have ratio (w/h) ≥ 0.7** to fit the split layout (bullets left, diagram card right). If a diagram renders too tall or too narrow, fix the diagram — don't add separate slides (they look terrible with tiny images on a landscape slide).
 
 ```javascript
 const diag = loadDiagramPng(mod.diagram);
-const useSplit = diag && diag.ratio >= 0.7;
-
-if (useSplit) {
-    // Bullets in left 4.5", diagram card in right 4.5"
+if (diag) {
+    // Split layout: bullets left 4.5", diagram card right 4.5"
     slide.addImage({
         data: diag.data, x: 5.2, y: 2.2, w: 4.3, h: 2.5,
         sizing: { type: "contain", w: 4.3, h: 2.5 },
     });
-} else if (diag) {
-    // Full-width text on this slide, then add a new diagram slide
-    const ds = pres.addSlide();
-    ds.addImage({
-        data: diag.data, x: 0.5, y: 0.95, w: 9, h: 4.4,
-        sizing: { type: "contain", w: 9, h: 4.4 },
-    });
+} else {
+    // No diagram — full-width text layout
 }
 ```
+
+### Fixing Bad Aspect Ratios
+
+Mermaid often produces diagrams with aspect ratios that don't work for landscape slides:
+
+| Mermaid direction | Typical problem |
+|-------------------|-----------------|
+| `flowchart TD` | Too tall/narrow (ratio 0.3-0.6) for sequential flows |
+| `flowchart LR` | Too flat/wide (ratio 5-12:1) for multi-step flows |
+| `TD` with `LR` subgraphs | Better but still often < 0.7 for complex graphs |
+
+**Prevention strategies (in order of preference):**
+
+1. **Restructure the Mermaid diagram** — use subgraphs, group parallel nodes, reduce nesting. Target viewport `-w 900 -H 440` for a ~2:1 ratio
+2. **Use `flowchart LR` with short node text** — works for simple 3-5 step flows
+3. **Custom SVG generator** — when Mermaid can't produce good ratios, hand-craft SVG and rasterize with `sharp` (see below)
+
+### Custom SVG Fallback (for Mermaid-resistant diagrams)
+
+When Mermaid can't produce a landscape-friendly layout (common with sequential pipelines, multi-phase flows, or decision trees), generate SVGs programmatically with pixel-level control:
+
+```javascript
+const sharp = require("sharp");
+const fs = require("fs");
+
+// Helper functions for SVG primitives
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function box(x, y, w, h, fill, stroke, text, textColor = "#0F172A", fontSize = 13) {
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"
+            fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+            <text x="${x + w / 2}" y="${y + h / 2 + fontSize * 0.35}"
+            text-anchor="middle" font-size="${fontSize}" fill="${textColor}"
+            font-family="Arial, sans-serif">${esc(text)}</text>`;
+}
+
+function arrow(x1, y1, x2, y2, color = "#64748B") {
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+            stroke="${color}" stroke-width="1.5" marker-end="url(#ah)"/>`;
+}
+
+// Build SVG with your exact target dimensions
+const W = 750, H = 400;  // Target ~1.88:1 ratio
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+  <defs><marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6Z" fill="#64748B"/></marker></defs>
+  ${box(20, 50, 140, 40, "#E0F2FE", "#06B6D4", "Step 1")}
+  ${arrow(160, 70, 200, 70)}
+  ${box(200, 50, 140, 40, "#E0F2FE", "#06B6D4", "Step 2")}
+</svg>`;
+
+await sharp(Buffer.from(svg)).png().toFile("diagrams/my_diagram.png");
+```
+
+**When to use custom SVGs:**
+- Sequential pipelines with 4+ stages (Mermaid TD = too tall, LR = too wide)
+- Complex decision flows where Mermaid auto-layout produces bad proportions
+- Diagrams needing precise alignment or grid layouts
+- Any diagram where Mermaid output has ratio < 0.7 after trying restructoring
+
+**Key rules:**
+- Set explicit SVG `width` and `height` to control the exact ratio (target 1.5:1 to 2.5:1)
+- Escape `&` as `&amp;` and `<`/`>` in all text content (XML requirement)
+- Avoid Unicode symbols in text — use plain words instead
+- Use `sharp` for rasterization (handles SVG→PNG reliably)
 
 ### Diagram Card Styling
 
@@ -325,11 +378,14 @@ slide.addImage({
 
 ### Mermaid Diagram Tips
 
-- **Prefer `flowchart TD`** (top-down) for most diagrams — they fit the side-panel aspect ratio better than `LR`
+- **Don't blindly default to `flowchart TD`** — it often produces tall/narrow diagrams (ratio < 0.7) for sequential flows. Test the actual rendered dimensions before committing
+- **Try `flowchart LR`** for simple 3-5 step linear flows — shorter text keeps them compact
+- **Use subgraphs** to group related concepts and reduce vertical/horizontal sprawl
 - **Keep node text short** — long text creates wide nodes that don't scale well
-- **Use subgraphs** to group related concepts (e.g., "Indexing Phase" vs "Query Phase")
 - **Color nodes** with `style` to match your slide palette
-- **Test rendering** before embedding — check actual pixel dimensions match your expected aspect ratio
+- **Always verify dimensions** after rendering — run `identify diagram.png` or read the PNG IHDR header to check the actual ratio
+- **If ratio < 0.7 after restructuring**, switch to the custom SVG approach instead of fighting Mermaid's auto-layout
+- **Render with explicit viewport**: `mmdc -w 900 -H 440 -b transparent` to hint at the desired proportions
 
 ---
 
@@ -546,6 +602,19 @@ titleSlide.addText("My Title", { placeholder: "title" });
    slide.addShape(pres.shapes.RECTANGLE, { x: 1, y: 1, w: 3, h: 1.5, fill: { color: "FFFFFF" } });
    slide.addShape(pres.shapes.RECTANGLE, { x: 1, y: 1, w: 0.08, h: 1.5, fill: { color: "0891B2" } });
    ```
+
+---
+
+## Speaker Script
+
+When creating a presentation from scratch, **also generate a companion speaker script** (`SPEAKER_SCRIPT.md`) alongside the `.pptx`. See [SKILL.md § Speaker Script](SKILL.md#speaker-script) for the full format, guidelines, and demo section details.
+
+Key points:
+- Write in conversational spoken tone (contractions, rhetorical questions)
+- Use `>` blockquotes for actual narration
+- Add `### 🖥️ DEMO:` sections after theory slides with exact run commands and expected outputs
+- Read the actual source to describe specific demo behaviors accurately
+- End each slide section with a natural transition to the next
 
 ---
 

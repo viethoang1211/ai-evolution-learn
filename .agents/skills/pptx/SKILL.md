@@ -135,8 +135,8 @@ Choose colors that match your topic — don't default to generic blue. Use these
 - **Don't default to blue** — pick colors that reflect the specific topic
 - **Don't mix spacing randomly** — choose 0.3" or 0.5" gaps and use consistently
 - **Don't style one slide and leave the rest plain** — commit fully or keep it simple throughout
-- **Don't create text-only slides** — add images, icons, charts, diagrams, or visual elements; avoid plain title + bullets. Use Mermaid diagrams for architecture/flow concepts (see [pptxgenjs.md § Mermaid Diagrams](pptxgenjs.md#mermaid-diagrams))
-- **Don't stretch diagrams** — always use `sizing: { type: "contain" }` to preserve aspect ratio. If a diagram is too tall (ratio < 0.7), put it on a separate slide instead of squeezing it into a side panel
+- **Don't create text-only slides** — add images, icons, charts, diagrams, or visual elements; avoid plain title + bullets. Use Mermaid diagrams for architecture/flow concepts, or custom SVGs when Mermaid can't produce good aspect ratios (see [pptxgenjs.md § Mermaid Diagrams](pptxgenjs.md#mermaid-diagrams))
+- **Don't stretch diagrams** — always use `sizing: { type: "contain" }` to preserve aspect ratio. All diagrams must have ratio (w/h) ≥ 0.7 to fit the split layout. If Mermaid produces a tall diagram (ratio < 0.7), **fix the diagram** (restructure or use custom SVG fallback — see [pptxgenjs.md § Custom SVG Fallback](pptxgenjs.md#custom-svg-fallback-for-mermaid-resistant-diagrams)) instead of adding separate slides (they display tiny images on landscape slides)
 - **Don't forget text box padding** — when aligning lines or shapes with text edges, set `margin: 0` on the text box or offset the shape to account for padding
 - **Don't use low-contrast elements** — icons AND text need strong contrast against the background; avoid light text on light backgrounds or dark text on dark backgrounds
 - **NEVER use accent lines under titles** — these are a hallmark of AI-generated slides; use whitespace or background color instead
