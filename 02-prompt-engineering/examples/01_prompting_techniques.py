@@ -8,15 +8,16 @@ Pain Point: Raw prompts give inconsistent results.
 Solution: Structured prompting techniques.
 """
 
-import os
-from openai import OpenAI
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 def ask(messages: list[dict], temperature: float = 0.0) -> str:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=messages,
         temperature=temperature,
     )

@@ -8,12 +8,14 @@ Solution:   ReAct agents reason about errors and try alternatives.
 """
 
 import json
+import sys
 import os
 import random
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 # ============================================
@@ -119,7 +121,7 @@ Think through each step carefully."""
         print(f"\n--- Step {step + 1} ---")
 
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=get_model(),
             messages=messages,
             tools=TOOLS,
         )

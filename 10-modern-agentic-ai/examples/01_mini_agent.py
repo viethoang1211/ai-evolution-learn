@@ -20,12 +20,14 @@ Requirements:
 """
 
 import json
+import sys
 import os
 from datetime import datetime
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 # ============================================
@@ -289,7 +291,7 @@ def run_agent(task: str, max_steps: int = 12) -> str:
         print(f"\n--- Step {step + 1} ---")
 
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=get_model(),
             messages=messages,
             tools=tools,
         )

@@ -7,15 +7,16 @@ Pain Point: Need consistent behavior across a conversation.
 Solution: System prompts define persona and rules.
 """
 
-import os
-from openai import OpenAI
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 def ask_with_persona(system_prompt: str, user_message: str) -> str:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message},

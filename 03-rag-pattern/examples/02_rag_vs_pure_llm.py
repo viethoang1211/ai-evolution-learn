@@ -7,10 +7,11 @@ Pain Point: Pure LLM hallucinates about domain-specific knowledge.
 Solution:   RAG grounds the LLM in real documents.
 """
 
-import os
-from openai import OpenAI
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 # Simulated company-specific information
 COMPANY_DOCS = """
@@ -32,7 +33,7 @@ TechCorp Internal Engineering Standards (2025):
 def pure_llm_answer(question: str) -> str:
     """Ask the LLM without any context — it must rely on training data."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[{"role": "user", "content": question}],
         temperature=0.0,
     )
@@ -42,7 +43,7 @@ def pure_llm_answer(question: str) -> str:
 def rag_answer(question: str) -> str:
     """Ask the LLM with company documents as context."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[
             {
                 "role": "system",

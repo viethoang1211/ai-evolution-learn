@@ -10,11 +10,13 @@ Requirements:
     pip install openai tiktoken
 """
 
+import sys
 import os
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 # ============================================
@@ -52,7 +54,7 @@ class SummarizingHistory:
 
         # Use LLM to summarize
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=get_model(),
             messages=[
                 {
                     "role": "system",

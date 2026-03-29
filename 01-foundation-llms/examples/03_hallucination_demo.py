@@ -7,15 +7,16 @@ Pain Point: LLMs don't "know" what they don't know.
 Solution Preview: RAG (Module 03), Tool Use (Module 04)
 """
 
-import os
-from openai import OpenAI
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 def ask_llm(prompt: str) -> str:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
     )

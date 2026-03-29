@@ -10,11 +10,14 @@ Requirements:
     pip install openai numpy
 """
 
+import sys
 import os
 import numpy as np
-from openai import OpenAI
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model, get_embedding_model
+
+client = get_client()
 
 # ============================================
 # STEP 1: Our "Knowledge Base" — simple documents
@@ -69,7 +72,7 @@ KNOWLEDGE_BASE = [
 def get_embedding(text: str) -> list[float]:
     """Convert text to a vector embedding using OpenAI."""
     response = client.embeddings.create(
-        model="text-embedding-3-small",
+        model=get_embedding_model(),
         input=text,
     )
     return response.data[0].embedding
@@ -139,7 +142,7 @@ Answer:"""
 
     # Step 4d: Generate answer using LLM
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[{"role": "user", "content": augmented_prompt}],
         temperature=0.0,
     )

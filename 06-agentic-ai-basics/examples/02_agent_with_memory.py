@@ -8,12 +8,14 @@ Solution:   Explicit memory management + self-reflection.
 """
 
 import json
+import sys
 import os
 from datetime import datetime
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 class AgentMemory:
@@ -156,7 +158,7 @@ After each response, add a section:
         # Agent loop
         for _ in range(5):
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=get_model(),
                 messages=messages,
                 tools=TOOL_SCHEMAS,
             )

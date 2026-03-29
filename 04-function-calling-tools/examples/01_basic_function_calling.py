@@ -10,10 +10,13 @@ Requirements:
 """
 
 import json
+import sys
 import os
-from openai import OpenAI
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
+
+client = get_client()
 
 # ============================================
 # STEP 1: Define the tools (functions)
@@ -156,7 +159,7 @@ def chat_with_tools(user_message: str) -> str:
 
     # First API call — LLM decides whether to use tools
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=messages,
         tools=TOOLS,
     )
@@ -189,7 +192,7 @@ def chat_with_tools(user_message: str) -> str:
 
         # Second API call — LLM processes tool results
         final_response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=get_model(),
             messages=messages,
         )
         return final_response.choices[0].message.content

@@ -8,11 +8,13 @@ This is how real AI coding assistants work internally.
 """
 
 import json
+import sys
 import os
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 # ============================================
@@ -90,7 +92,7 @@ ERROR_LOGS = [
 def classify_query(query: str) -> dict:
     """Use LLM to classify what context a query needs."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[
             {
                 "role": "system",
@@ -171,7 +173,7 @@ def answer_with_context(query: str) -> str:
     context = select_context(query)
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[
             {"role": "system", "content": context},
             {"role": "user", "content": query},

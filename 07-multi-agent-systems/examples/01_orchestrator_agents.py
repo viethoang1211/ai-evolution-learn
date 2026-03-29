@@ -11,11 +11,13 @@ Requirements:
 """
 
 import json
+import sys
 import os
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 # ============================================
@@ -25,7 +27,7 @@ def call_agent(system_prompt: str, task: str, agent_name: str) -> str:
     """Call a specialized agent with its own system prompt."""
     print(f"\n  🤖 [{agent_name}] Working on: {task[:80]}...")
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": task},
@@ -100,7 +102,7 @@ def orchestrate(user_request: str) -> dict:
     # Step 1: Orchestrator creates task breakdown
     print("\n🎯 PHASE 1: Planning (Orchestrator)")
     plan_response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[
             {"role": "system", "content": ORCHESTRATOR_PROMPT},
             {"role": "user", "content": user_request},

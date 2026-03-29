@@ -8,12 +8,14 @@ MCP Server → Tool Discovery → LLM Function Calling → Tool Execution → Re
 """
 
 import json
+import sys
 import os
 from dataclasses import dataclass, field
 
-from openai import OpenAI
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 # ============================================
@@ -189,7 +191,7 @@ def ai_assistant(user_message: str, mcp_client: MCPClient) -> str:
     # Agent loop
     for _ in range(5):
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=get_model(),
             messages=messages,
             tools=tools,
         )

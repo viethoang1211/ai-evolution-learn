@@ -8,16 +8,17 @@ Pain Point: Each call is independent — the model forgets everything.
 Solution Preview: Message history (Module 02), RAG (Module 03)
 """
 
-import os
-from openai import OpenAI
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 def single_call(prompt: str) -> str:
     """Each call is completely independent."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
     )
@@ -27,7 +28,7 @@ def single_call(prompt: str) -> str:
 def conversation_with_history(messages: list[dict]) -> str:
     """Pass the full conversation history to simulate memory."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=messages,
         temperature=0.0,
     )

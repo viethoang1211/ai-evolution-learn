@@ -55,8 +55,16 @@ source .venv/bin/activate  # Linux/Mac
 # Install dependencies
 pip install -r requirements.txt
 
-# Set your API key
+# Set your API key (Option A: OpenAI)
 export OPENAI_API_KEY="your-key-here"
+
+# Or use Azure OpenAI (Option B):
+export USE_AZURE_OPENAI=true
+export AZURE_OPENAI_API_KEY="your-azure-key"
+export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
+export AZURE_OPENAI_API_VERSION="2024-12-01-preview"
+export AZURE_OPENAI_DEPLOYMENT="gpt-4o-mini"                        # chat model deployment
+export AZURE_OPENAI_EMBEDDING_DEPLOYMENT="text-embedding-3-small"   # embedding deployment (Module 03)
 ```
 
 ### Running Examples
@@ -128,6 +136,7 @@ Result: Modern Agentic AI that plans, reasons, acts, and learns (Module 10)
 |-----------|---------|
 | Python 3.11+ | All examples |
 | OpenAI API | LLM calls (GPT-4o-mini) |
+| Azure OpenAI | Alternative LLM backend (same code, just set env vars) |
 | NumPy | Vector operations (RAG) |
 
 > **Note:** Examples use `gpt-4o-mini` for cost-efficiency. You can swap to any model (Claude, Gemini, local models) by changing the API client.

@@ -10,16 +10,17 @@ Requirements:
     export OPENAI_API_KEY="your-key-here"
 """
 
-import os
-from openai import OpenAI
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from utils.llm_client import get_client, get_model
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = get_client()
 
 
 def basic_completion(prompt: str) -> str:
     """The simplest possible LLM call — text in, text out."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=get_model(),
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
         max_tokens=500,
