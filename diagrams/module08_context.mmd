@@ -1,0 +1,18 @@
+flowchart TD
+    Q(["User Query"]) --> CL
+    CL["Query\nClassifier"]
+    CL -->|"debug"| DBG["Code Files\n+ Error Logs"]
+    CL -->|"feature"| FE["Code Files\n+ API Docs"]
+    CL -->|"security review"| SEC["Code Files\n+ Security Policy"]
+    CL -->|"deployment"| DEP["Deployment\nDocs only"]
+    DBG --> LLM(["LLM"])
+    FE --> LLM
+    SEC --> LLM
+    DEP --> LLM
+
+    style CL fill:#FFF7ED,stroke:#F59E0B,color:#0F172A
+    style DBG fill:#FEF2F2,stroke:#F43F5E,color:#0F172A
+    style FE fill:#ECFDF5,stroke:#10B981,color:#0F172A
+    style SEC fill:#FFF7ED,stroke:#F59E0B,color:#0F172A
+    style DEP fill:#E0F2FE,stroke:#06B6D4,color:#0F172A
+    style LLM fill:#EEF2FF,stroke:#8B5CF6,color:#0F172A

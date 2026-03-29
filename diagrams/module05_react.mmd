@@ -1,0 +1,26 @@
+flowchart LR
+    subgraph c1[" "]
+        direction TB
+        Q(["User\nQuery"]) --> T["THOUGHT\nAnalyze problem"]
+    end
+    subgraph c2["ReAct Loop"]
+        direction TB
+        A["ACTION\nCall tool with args"] --> O["OBSERVATION\nRead tool result"]
+    end
+    subgraph c3[" "]
+        direction TB
+        D{"Goal\nreached?"} -->|"Yes"| F(["Final\nAnswer"])
+    end
+    T --> A
+    O --> D
+    D -->|"No — loop back"| T
+
+    style c1 fill:#F0F9FF,stroke:#94A3B8,color:#0F172A
+    style c2 fill:#F8FAFC,stroke:#06B6D4,color:#0F172A
+    style c3 fill:#F0FDF4,stroke:#94A3B8,color:#0F172A
+    style Q fill:#E0F2FE,stroke:#06B6D4,color:#0F172A
+    style T fill:#EEF2FF,stroke:#8B5CF6,color:#0F172A
+    style A fill:#ECFDF5,stroke:#10B981,color:#0F172A
+    style O fill:#FFF7ED,stroke:#F59E0B,color:#0F172A
+    style D fill:#F0F9FF,stroke:#06B6D4,color:#0F172A
+    style F fill:#F0FDF4,stroke:#10B981,color:#0F172A

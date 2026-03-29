@@ -1,4 +1,6 @@
 const pptxgen = require("pptxgenjs");
+const fs = require("fs");
+const path = require("path");
 const React = require("react");
 const ReactDOMServer = require("react-dom/server");
 const sharp = require("sharp");
@@ -20,6 +22,20 @@ async function iconToBase64Png(IconComponent, color, size = 256) {
     const svg = renderIconSvg(IconComponent, color, size);
     const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
     return "image/png;base64," + pngBuffer.toString("base64");
+}
+
+function loadDiagramPng(filename) {
+    const p = path.join(__dirname, "diagrams", filename);
+    if (!fs.existsSync(p)) return null;
+    const buf = fs.readFileSync(p);
+    // Read PNG dimensions from IHDR chunk (bytes 16-23)
+    const width = buf.readUInt32BE(16);
+    const height = buf.readUInt32BE(24);
+    return {
+        data: "image/png;base64," + buf.toString("base64"),
+        width, height,
+        ratio: width / height,
+    };
 }
 
 // ===== Color Palette: Deep Tech / AI Theme =====
@@ -227,6 +243,7 @@ async function buildPresentation() {
                 "Every API call is independent — the model forgets everything",
             ],
             example: "01_basic_llm_call.py — Simple OpenAI / Azure OpenAI API call",
+            diagram: "module01_stateless.png",
             bgColor: C.offWhite,
         },
         {
@@ -253,6 +270,7 @@ async function buildPresentation() {
                 "Read-only pattern — can't take actions or iterate",
             ],
             example: "01_simple_rag.py — Full RAG pipeline from scratch with NumPy",
+            diagram: "module03_rag.png",
             bgColor: C.offWhite,
         },
         {
@@ -266,6 +284,7 @@ async function buildPresentation() {
                 "Single-turn only — no multi-step reasoning yet",
             ],
             example: "02_multi_tool_assistant.py — Project management assistant",
+            diagram: "module04_tools.png",
             bgColor: C.offWhite,
         },
         {
@@ -279,6 +298,7 @@ async function buildPresentation() {
                 "Foundation of EVERY modern AI agent",
             ],
             example: "02_react_error_recovery.py — Agent that handles API failures",
+            diagram: "module05_react.png",
             bgColor: C.offWhite,
         },
         {
@@ -305,6 +325,7 @@ async function buildPresentation() {
                 "Swarm: Dynamic routing to the right expert",
             ],
             example: "02_code_review_pipeline.py — Security + Performance reviewers",
+            diagram: "module07_pipeline.png",
             bgColor: C.offWhite,
         },
         {
@@ -318,6 +339,7 @@ async function buildPresentation() {
                 "Dynamic selection: different queries need different context",
             ],
             example: "02_dynamic_context.py — Context pipeline selecting per-query",
+            diagram: "module08_context.png",
             bgColor: C.offWhite,
         },
         {
@@ -331,6 +353,7 @@ async function buildPresentation() {
                 "N+M solution instead of N×M — write once, use everywhere",
             ],
             example: "02_mcp_client_demo.py — Multi-server MCP + LLM integration",
+            diagram: "module09_mcp.png",
             bgColor: C.offWhite,
         },
         {
@@ -344,6 +367,7 @@ async function buildPresentation() {
                 "Capstone: mini coding assistant combining Modules 01–09",
             ],
             example: "01_mini_agent.py — Complete agentic coding assistant",
+            diagram: "module10_stack.png",
             bgColor: C.offWhite,
         },
     ];
@@ -380,7 +404,7 @@ async function buildPresentation() {
         // Divider
         s.addShape(pres.shapes.LINE, { x: 0.5, y: 1.2, w: 9, h: 0, line: { color: C.light, width: 1 } });
 
-        // Pain point box
+        // Pain point box (full width)
         s.addShape(pres.shapes.RECTANGLE, {
             x: 0.5, y: 1.4, w: 9, h: 0.55, fill: { color: "FEF2F2" },
         });
@@ -393,26 +417,61 @@ async function buildPresentation() {
             color: C.darkSlate, valign: "middle", margin: 0,
         });
 
-        // Key Concepts
-        s.addText("Key Concepts", {
-            x: 0.5, y: 2.15, w: 3, h: 0.4, fontSize: 16, fontFace: FONT_HEAD,
-            color: C.navy, bold: true, margin: 0,
-        });
+        const diag = mod.diagram ? loadDiagramPng(mod.diagram) : null;
 
-        const bulletItems = mod.keyPoints.map((pt, idx) => ({
-            text: pt,
-            options: {
-                fontSize: 13, fontFace: FONT_BODY, color: C.darkSlate,
-                bullet: { code: "25CF", color: C.accent },
-                breakLine: idx < mod.keyPoints.length - 1,
-                paraSpaceAfter: 6,
-            },
-        }));
-        s.addText(bulletItems, {
-            x: 0.5, y: 2.55, w: 9, h: 2.2, margin: 0, valign: "top",
-        });
+        if (diag) {
+            // ---- SPLIT LAYOUT: bullets left, diagram right ----
+            s.addText("Key Concepts", {
+                x: 0.5, y: 2.15, w: 4.4, h: 0.38, fontSize: 15, fontFace: FONT_HEAD,
+                color: C.navy, bold: true, margin: 0,
+            });
+            const bulletItems = mod.keyPoints.map((pt, idx) => ({
+                text: pt,
+                options: {
+                    fontSize: 12, fontFace: FONT_BODY, color: C.darkSlate,
+                    bullet: { code: "25CF", color: C.accent },
+                    breakLine: idx < mod.keyPoints.length - 1,
+                    paraSpaceAfter: 8,
+                },
+            }));
+            s.addText(bulletItems, {
+                x: 0.5, y: 2.55, w: 4.45, h: 2.2, margin: 0, valign: "top",
+            });
+            // Diagram card (right side) — use contain to preserve aspect ratio
+            const cardX = 5.1, cardY = 2.1, cardW = 4.55, cardH = 2.7;
+            const padW = 0.1, padH = 0.12;
+            s.addShape(pres.shapes.RECTANGLE, {
+                x: cardX, y: cardY, w: cardW, h: cardH, fill: { color: C.white }, shadow: mkShadow(),
+            });
+            s.addShape(pres.shapes.RECTANGLE, {
+                x: cardX, y: cardY, w: cardW, h: 0.05, fill: { color: C.accent },
+            });
+            s.addImage({
+                data: diag.data, x: cardX + padW, y: cardY + padH,
+                w: cardW - padW * 2, h: cardH - padH * 2,
+                sizing: { type: "contain", w: cardW - padW * 2, h: cardH - padH * 2 },
+            });
+        } else {
+            // ---- FULL-WIDTH LAYOUT (no diagram) ----
+            s.addText("Key Concepts", {
+                x: 0.5, y: 2.15, w: 3, h: 0.4, fontSize: 16, fontFace: FONT_HEAD,
+                color: C.navy, bold: true, margin: 0,
+            });
+            const bulletItems = mod.keyPoints.map((pt, idx) => ({
+                text: pt,
+                options: {
+                    fontSize: 13, fontFace: FONT_BODY, color: C.darkSlate,
+                    bullet: { code: "25CF", color: C.accent },
+                    breakLine: idx < mod.keyPoints.length - 1,
+                    paraSpaceAfter: 6,
+                },
+            }));
+            s.addText(bulletItems, {
+                x: 0.5, y: 2.55, w: 9, h: 2.2, margin: 0, valign: "top",
+            });
+        }
 
-        // Example box
+        // Example box (always full width at bottom)
         s.addShape(pres.shapes.RECTANGLE, {
             x: 0.5, y: 4.85, w: 9, h: 0.55, fill: { color: "F0FDF4" },
         });

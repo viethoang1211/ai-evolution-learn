@@ -63,7 +63,7 @@ export USE_AZURE_OPENAI=true
 export AZURE_OPENAI_API_KEY="your-azure-key"
 export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
 export AZURE_OPENAI_API_VERSION="2024-12-01-preview"
-export AZURE_OPENAI_DEPLOYMENT="gpt-4o-mini"                        # chat model deployment
+export AZURE_OPENAI_DEPLOYMENT="gpt-4o-test"                        # chat model deployment
 export AZURE_OPENAI_EMBEDDING_DEPLOYMENT="text-embedding-3-small"   # embedding deployment (Module 03)
 ```
 

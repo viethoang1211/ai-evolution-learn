@@ -1,0 +1,23 @@
+flowchart LR
+    subgraph apps["AI Apps  (N)"]
+        A1["ChatGPT"]
+        A2["Claude"]
+        A3["Copilot"]
+    end
+    MCP["MCP Protocol\n\nWrite once —\nuse everywhere"]
+    subgraph svcs["Services  (M)"]
+        S1["GitHub"]
+        S2["Slack"]
+        S3["Jira"]
+    end
+
+    A1 --> MCP
+    A2 --> MCP
+    A3 --> MCP
+    MCP --> S1
+    MCP --> S2
+    MCP --> S3
+
+    style apps fill:#EFF6FF,stroke:#3B82F6,color:#0F172A
+    style svcs fill:#F0FDF4,stroke:#10B981,color:#0F172A
+    style MCP fill:#ECFDF5,stroke:#10B981,color:#0F172A,font-weight:bold

@@ -1,0 +1,22 @@
+flowchart TD
+    subgraph idx["Indexing Phase"]
+        direction LR
+        D["Documents"] --> EM["Embedding Model"]
+        EM --> VDB[("Vector DB")]
+    end
+    subgraph qry["Query Phase"]
+        direction LR
+        Q["User Query"] --> QE["Embed Query"]
+        QE --> SIM["Similarity Search"]
+    end
+    VDB --> SIM
+    SIM --> CTX["Top-K Context"]
+    Q2["User Query"] --> LLM
+    CTX --> LLM["LLM"]
+    LLM --> ANS["Grounded Answer\n+ Source Citation"]
+
+    style idx fill:#EFF6FF,stroke:#3B82F6,color:#0F172A
+    style qry fill:#F0FDF4,stroke:#10B981,color:#0F172A
+    style VDB fill:#E0F2FE,stroke:#06B6D4,color:#0F172A
+    style LLM fill:#EEF2FF,stroke:#8B5CF6,color:#0F172A
+    style ANS fill:#F0FDF4,stroke:#10B981,color:#0F172A

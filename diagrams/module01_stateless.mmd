@@ -1,0 +1,13 @@
+flowchart TB
+    subgraph c1["API Call 1"]
+        M1["User: My name is Alice"] --> R1["Hi Alice! Nice to meet you."]
+    end
+    subgraph c2["API Call 2  (brand new, empty context)"]
+        M2["User: What is my name?"] --> R2["I don't know your name."]
+    end
+    c1 -.->|"No state passed — model forgets everything"| c2
+
+    style c1 fill:#F0FDF4,stroke:#10B981,color:#0F172A
+    style c2 fill:#FEF2F2,stroke:#F43F5E,color:#0F172A
+    style R2 fill:#FEF2F2,stroke:#F43F5E,color:#F43F5E
+    style M2 fill:#FFFFFF,stroke:#94A3B8,color:#0F172A

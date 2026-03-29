@@ -1,0 +1,27 @@
+flowchart LR
+    subgraph c1["Input"]
+        direction TB
+        U(["User\nRequest"]) ~~~ TOOLS["Tool Defs\n(JSON Schema)"]
+    end
+    subgraph c2["  Processing  "]
+        direction TB
+        LLM1["LLM selects\ntool + args"] -->|"tool_call"| CODE["Your Code\nexecutes safely"]
+    end
+    subgraph c3["  Output  "]
+        direction TB
+        EXT["External\nAPI / DB"] -->|"result"| LLM2["LLM formats\nresponse"]
+    end
+    U --> LLM1
+    TOOLS --> LLM1
+    CODE --> EXT
+    LLM2 --> ANS(["Natural\nResponse"])
+
+    style c1 fill:#F0F9FF,stroke:#94A3B8,color:#0F172A
+    style c2 fill:#F0FDF4,stroke:#94A3B8,color:#0F172A
+    style c3 fill:#FFF7ED,stroke:#94A3B8,color:#0F172A
+    style U fill:#E0F2FE,stroke:#06B6D4,color:#0F172A
+    style LLM1 fill:#EEF2FF,stroke:#8B5CF6,color:#0F172A
+    style LLM2 fill:#EEF2FF,stroke:#8B5CF6,color:#0F172A
+    style CODE fill:#ECFDF5,stroke:#10B981,color:#0F172A
+    style TOOLS fill:#FFF7ED,stroke:#F59E0B,color:#0F172A
+    style ANS fill:#F0FDF4,stroke:#10B981,color:#0F172A

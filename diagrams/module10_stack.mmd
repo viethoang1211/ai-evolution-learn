@@ -1,0 +1,16 @@
+flowchart TD
+    UG(["User Goal"]) --> CE
+    CE["08  Context Engineering\nAssemble the right context"] --> RL
+    RL["05  ReAct Loop\nThought → Action → Observe"] --> PA
+    PA["06  Planning Agent\nPlan → Execute → Verify"] --> MCP
+    MCP["09  Tools via MCP\nFile, Code, Test, Search"] -->|"results"| PA
+    PA --> MEM["Memory + Reflection\nLearn from each step"]
+    MEM --> RL
+    PA --> DONE(["Goal Achieved"])
+
+    style CE fill:#FFF7ED,stroke:#F59E0B,color:#0F172A
+    style RL fill:#EEF2FF,stroke:#8B5CF6,color:#0F172A
+    style PA fill:#ECFDF5,stroke:#10B981,color:#0F172A
+    style MCP fill:#E0F2FE,stroke:#06B6D4,color:#0F172A
+    style MEM fill:#FDF2F8,stroke:#EC4899,color:#0F172A
+    style DONE fill:#F0FDF4,stroke:#10B981,color:#0F172A
